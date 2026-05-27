@@ -15,3 +15,11 @@ consumer/credentials.php
 .lando.yml
 php.ini
 Dockerfile.custom
+
+# ddev
+/.ddev
+
+# ia
+.codex
+ai-context.md
+

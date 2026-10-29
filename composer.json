@@ -12,7 +12,7 @@
 	"require" : {
 		"ext-pdo" : "*",
 		"uspdev/replicado": "^1",
-		"mikecao/flight": "^1",
+		"flightphp/core": "^3.19.5",
 		"uspdev/cache": "^0.7"
 	},
 	"extra" : {},

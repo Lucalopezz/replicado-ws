@@ -14,6 +14,20 @@ Web Service para acesso aos dados do Replicado USP
 
 A API faz uso do uspdev/cache. Essa biblioteca de cache funciona com o memcached e ele precisa ser instalado e configurado. Para mais informações consulte http://github.com/uspdev/cache.
 
+Para executar com o cache desabilitado, defina em `config/config.php`:
+
+```php
+putenv('USPDEV_CACHE_DISABLE=1');
+putenv('REPLICADO_USAR_CACHE=false');
+```
+
+Nesse modo, o serviço e a extensão Memcached são dispensados e as consultas são
+executadas diretamente no banco. A biblioteca Composer `uspdev/cache` permanece
+necessária. A aplicação usa [uma classe de compatibilidade](src/Cache.php) que
+declara as propriedades usadas pela biblioteca para evitar avisos no PHP 8.3.
+As versões publicadas 0.7.3 e 1.0.0 contêm o mesmo código e não declaram essas
+propriedades; os arquivos instalados pelo Composer não precisam ser editados.
+
 ## Updates
 
 2/2022 - deixou de usar a contante UNIDADE para usar a variável de ambiente REPLICADO_CODUNDCLG. Atualizeo arquivo de configuraçãoapropriadamente.
@@ -26,6 +40,25 @@ Há alguns testes simples de verificação do funcionamento. Longe de ser unit t
 php test/not_found.php
 php test/require_auth.php
 ```
+
+Para verificar a compatibilidade do Flight com PHP 8.3, sem banco nem Memcached:
+
+```bash
+php test/flight_compatibility.php
+```
+
+Esse teste usa as rotas, a autenticação e o bootstrap da aplicação com dados
+simulados. Ele falha também se o Flight emitir avisos de compatibilidade.
+
+Para conferir que a entrada real retorna JSON sem avisos PHP e que as chamadas
+funcionam com o cache desabilitado:
+
+```bash
+php test/cache_compatibility.php
+```
+
+Esse teste requer `config/config.php` e desabilita o cache somente nos processos
+de teste, sem alterar o arquivo. Não consulta o banco nem usa Memcached.
 
 ## Utilização
 

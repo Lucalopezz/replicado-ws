@@ -6,7 +6,7 @@ require_once '../vendor/autoload.php';
 require_once '../app/bootstrap.php';
 
 use Uspdev\Replicado_ws\Auth;
-use Uspdev\Cache\Cache;
+use Uspdev\Replicado_ws\Cache;
 
 $c = new Cache();
 

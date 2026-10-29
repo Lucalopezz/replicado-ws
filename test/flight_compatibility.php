@@ -27,6 +27,11 @@ if (($argv[1] ?? '') === '--request') {
         $_SERVER['PHP_AUTH_USER'] = 'teste';
         $_SERVER['PHP_AUTH_PW'] = $case['password'];
     }
+    foreach (['HTTP_AUTHORIZATION', 'REDIRECT_HTTP_AUTHORIZATION'] as $header) {
+        if (isset($case[$header])) {
+            $_SERVER[$header] = $case[$header];
+        }
+    }
 
     require dirname(__DIR__) . '/vendor/autoload.php';
     Flight::set('flight.handle_errors', false);
@@ -81,6 +86,15 @@ $cases = [
     ['path' => '/login', 'status' => 401, 'text' => 'Você deve digitar um login e senha válidos para acessar este recurso\\n'],
     ['path' => '/login', 'password' => 'incorreta', 'status' => 401, 'text' => 'Credenciais inválidas'],
     ['path' => '/login', 'password' => 'senha-de-teste', 'status' => 200, 'text' => 'Login success'],
+    ['path' => '/login', 'HTTP_AUTHORIZATION' => 'Basic ' . base64_encode('teste:senha-de-teste'), 'status' => 200, 'text' => 'Login success'],
+    ['path' => '/login', 'REDIRECT_HTTP_AUTHORIZATION' => 'Basic ' . base64_encode('teste:senha-de-teste'), 'status' => 200, 'text' => 'Login success'],
+    ['path' => '/pessoa/dump/123', 'HTTP_AUTHORIZATION' => 'Basic ' . base64_encode('teste:senha-de-teste'), 'status' => 200, 'params' => '123'],
+    ['path' => '/pessoa/dump/123', 'REDIRECT_HTTP_AUTHORIZATION' => 'Basic ' . base64_encode('teste:senha-de-teste'), 'status' => 200, 'params' => '123'],
+    ['path' => '/login', 'HTTP_AUTHORIZATION' => 'Basic ' . base64_encode('teste:incorreta'), 'status' => 401, 'text' => 'Credenciais inválidas'],
+    ['path' => '/login', 'HTTP_AUTHORIZATION' => 'Basic !!!', 'status' => 401, 'text' => 'Você deve digitar um login e senha válidos para acessar este recurso\\n'],
+    ['path' => '/login', 'HTTP_AUTHORIZATION' => 'Basic ' . base64_encode('teste'), 'status' => 401, 'text' => 'Você deve digitar um login e senha válidos para acessar este recurso\\n'],
+    ['path' => '/login', 'HTTP_AUTHORIZATION' => 'Bearer token', 'status' => 401, 'text' => 'Você deve digitar um login e senha válidos para acessar este recurso\\n'],
+    ['path' => '/login', 'password' => 'incorreta', 'HTTP_AUTHORIZATION' => 'Basic ' . base64_encode('teste:senha-de-teste'), 'status' => 401, 'text' => 'Credenciais inválidas'],
     ['path' => '/logout', 'status' => 401, 'text' => 'logout'],
 ];
 

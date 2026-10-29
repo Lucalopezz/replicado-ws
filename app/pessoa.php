@@ -64,7 +64,7 @@ $help['servidores'] = [
 Flight::route('/pessoa/servidores', function () {
     global $c;
     Auth::auth();
-    $res = $c->getCached('\Uspdev\Replicado\Pessoa::servidores', getenv('REPLICADO_CODUNDCLG'));
+    $res = $c->getCached('\Uspdev\Replicado\Pessoa::listarServidores', []);
     Flight::jsonf($res);
 });
 

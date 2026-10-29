@@ -60,6 +60,20 @@ php test/cache_compatibility.php
 Esse teste requer `config/config.php` e desabilita o cache somente nos processos
 de teste, sem alterar o arquivo. Não consulta o banco nem usa Memcached.
 
+Para verificar a conversão de caracteres do Replicado, preservando acentos,
+valores nulos e tipos numéricos:
+
+```bash
+php test/replicado_compatibility.php
+```
+
+Esse teste usa dados sintéticos, inclusive no fluxo de `DB::fetch` e
+`DB::fetchAll`, e não abre conexão com o banco. As correções oficiais estão no
+Replicado 1.27.12, que exige `uspdev/cache` 1.0.0. As versões instaladas ficam
+fixadas em `composer.lock`; mantenha `REPLICADO_USAR_CACHE=false` para continuar
+executando sem Memcached. A verificação do Flight também cobre domínios sem
+subdiretório.
+
 ## Utilização
 
 Acessar URL do serviço desejado com os parâmetros necessários. O retorno dos dados será em JSON.

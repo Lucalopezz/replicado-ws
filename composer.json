@@ -11,9 +11,9 @@
 	],
 	"require" : {
 		"ext-pdo" : "*",
-		"uspdev/replicado": "^1",
+		"uspdev/replicado": "^1.27.12",
 		"flightphp/core": "^3.19.5",
-		"uspdev/cache": "^0.7"
+		"uspdev/cache": "^1.0"
 	},
 	"extra" : {},
 	"autoload" : {

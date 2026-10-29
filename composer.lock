@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba2c2c463afdb95d5b4b98e280389c0a",
+    "content-hash": "27d80eff77e3a183f254fa7c87f42a28",
     "packages": [
         {
             "name": "flightphp/core",
@@ -492,7 +492,7 @@
         },
         {
             "name": "uspdev/cache",
-            "version": "0.7.3",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/uspdev/cache.git",
@@ -527,29 +527,30 @@
             "homepage": "https://github.com/uspdev/cache",
             "support": {
                 "issues": "https://github.com/uspdev/cache/issues",
-                "source": "https://github.com/uspdev/cache/tree/0.7.3"
+                "source": "https://github.com/uspdev/cache/tree/1.0.0"
             },
             "time": "2021-04-07T23:14:52+00:00"
         },
         {
             "name": "uspdev/replicado",
-            "version": "1.27.5",
+            "version": "1.27.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/uspdev/replicado.git",
-                "reference": "dde6c6a03bd2f9de5a4f0cb593aaf85252c573a5"
+                "reference": "2feec97a58b92b108e74eba83f61d29fee69a472"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uspdev/replicado/zipball/dde6c6a03bd2f9de5a4f0cb593aaf85252c573a5",
-                "reference": "dde6c6a03bd2f9de5a4f0cb593aaf85252c573a5",
+                "url": "https://api.github.com/repos/uspdev/replicado/zipball/2feec97a58b92b108e74eba83f61d29fee69a472",
+                "reference": "2feec97a58b92b108e74eba83f61d29fee69a472",
                 "shasum": ""
             },
             "require": {
                 "ext-pdo_dblib": "*",
                 "illuminate/collections": "^8 || ^9 || ^10 || ^11 || ^12 || ^13",
                 "monolog/monolog": "^2 || ^3",
-                "php": "^7 || ^8"
+                "php": "^7 || ^8",
+                "uspdev/cache": "^1"
             },
             "type": "library",
             "autoload": {
@@ -575,9 +576,9 @@
             "homepage": "https://github.com/uspdev/replicado",
             "support": {
                 "issues": "https://github.com/uspdev/replicado/issues",
-                "source": "https://github.com/uspdev/replicado/tree/1.27.5"
+                "source": "https://github.com/uspdev/replicado/tree/1.27.12"
             },
-            "time": "2026-03-25T13:13:12+00:00"
+            "time": "2026-05-13T14:04:10+00:00"
         }
     ],
     "packages-dev": [],

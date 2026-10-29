@@ -7,7 +7,7 @@ Flight::set('flight.v2.output_buffering', true);
 // vamos ajustar os caminhos baseados no arquivo de configuracao
 // dessa forma não precisamos recorrer ao RewriteBase do apache
 // e podemos usar um .htaccess que não depende do deploy
-Flight::request()->base = parse_url(DOMINIO, PHP_URL_PATH);
+Flight::request()->base = parse_url(DOMINIO, PHP_URL_PATH) ?? '';
 Flight::request()->url = str_replace(Flight::request()->base, '', Flight::request()->url);
 
 function recursive_unset(&$array, $unwanted_key)

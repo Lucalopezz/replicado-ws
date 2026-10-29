@@ -13,11 +13,12 @@ if (($argv[1] ?? '') === '--request') {
         throw new ErrorException($message, 0, $severity, $file, $line);
     });
 
-    define('DOMINIO', 'https://example.test/api');
+    $base = $case['base'] ?? '/api';
+    define('DOMINIO', 'https://example.test' . $base);
     define('IP_ACCESS_LIST', [['127.0.0.1', '32']]);
     $_SERVER['REQUEST_METHOD'] = 'GET';
-    $_SERVER['REQUEST_URI'] = '/api' . $case['path'];
-    $_SERVER['SCRIPT_NAME'] = '/api/index.php';
+    $_SERVER['REQUEST_URI'] = $base . $case['path'];
+    $_SERVER['SCRIPT_NAME'] = $base . '/index.php';
     $_SERVER['REMOTE_ADDR'] = $case['ip'] ?? '127.0.0.1';
     $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
     parse_str(parse_url($case['path'], PHP_URL_QUERY) ?? '', $_GET);
@@ -60,6 +61,9 @@ if (($argv[1] ?? '') === '--request') {
 }
 
 $cases = [
+    ['path' => '/pessoa', 'base' => '', 'status' => 200, 'key' => 'dump'],
+    ['path' => '/nulo', 'base' => '', 'status' => 404, 'message' => 'Not Found'],
+    ['path' => '/posgraduacao/ativos', 'base' => '', 'status' => 200, 'message' => 'Requires Authentication'],
     ['path' => '/pessoa', 'status' => 200, 'key' => 'dump'],
     ['path' => '/posgraduacao', 'status' => 200, 'key' => 'ativos'],
     ['path' => '/lattes', 'status' => 200, 'key' => 'idLattes'],
@@ -82,6 +86,7 @@ $cases = [
 
 $failed = 0;
 foreach ($cases as $case) {
+    $domain = 'https://example.test' . ($case['base'] ?? '/api');
     $process = proc_open([
         PHP_BINARY, __FILE__, '--request', base64_encode(json_encode($case)),
     ], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
@@ -106,12 +111,12 @@ foreach ($cases as $case) {
         if (isset($case['message'])) {
             $ok = $ok && $data === [
                 'message' => $case['message'],
-                'documentation_url' => 'https://example.test/api/',
+                'documentation_url' => $domain . '/',
             ];
         }
         if (isset($case['key'])) {
             $ok = $ok && isset($data[$case['key']]['url'])
-                && strpos($data[$case['key']]['url'], 'https://example.test/api/') === 0;
+                && strpos($data[$case['key']]['url'], $domain . '/') === 0;
         }
         if (isset($case['params'])) {
             $ok = $ok && ($data['params'] ?? null) === $case['params'];

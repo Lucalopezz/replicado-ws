@@ -51,6 +51,11 @@ if (($argv[1] ?? '') === '--request') {
         }
     };
 
+    if (isset($case['colegiados'])) {
+        require __DIR__ . '/fixtures/ReplicadoColegiados.php';
+        $c = replicadoColegiadosFixture($case);
+    }
+
     Flight::route('*', static function () {
         Uspdev\Replicado_ws\Auth::ip_control();
         return true;

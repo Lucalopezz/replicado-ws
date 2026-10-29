@@ -5,6 +5,16 @@ use \Uspdev\Replicado\Posgraduacao as UspdevPosgraduacao;
 
 class Posgraduacao
 {
+    // Evita chamar o método legado sem áreas quando o curso não pertence ao colegiado.
+    public static function alunosPrograma(int $codundclg, int $codcur): array
+    {
+        $programas = UspdevPosgraduacao::areasProgramas($codundclg, $codcur);
+        $alunos = [];
+        foreach ($programas[$codcur] ?? [] as $area) {
+            $alunos = array_merge($alunos, UspdevPosgraduacao::alunosPrograma($codundclg, $codcur, (int) $area['codare']));
+        }
+        return $alunos;
+    }
 
     // o uspdev/replicado pega somente os dados básicos da disciplina no método catálogodisciplina.
     // vamos pegar todos os dados aqui

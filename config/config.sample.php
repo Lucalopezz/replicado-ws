@@ -28,7 +28,12 @@ putenv('REPLICADO_PORT=1498');
 putenv('REPLICADO_DATABASE=rep_dbc');
 putenv('REPLICADO_USERNAME=dbmaint_read');
 putenv('REPLICADO_PASSWORD=secret');
-putenv('REPLICADO_CODUNDCLG='); // não pode ser uma lista de números
+// Unidade principal: um único código. Ajuste os exemplos para sua unidade.
+putenv('REPLICADO_CODUNDCLG=18');
+// Colegiados da unidade, separados por vírgula. Para um só, repita o código principal.
+// As rotas por unidade consultam todos os códigos desta lista.
+// Se vazia, a aplicação usa REPLICADO_CODUNDCLG (inclusive listas de configurações antigas).
+putenv('REPLICADO_CODUNDCLGS=18,97');
 putenv('REPLICADO_SYBASE=1');
 putenv('REPLICADO_PATHLOG=' . DIR . '/local/replicado.log'); // se não pusermos nada vai para default do replicado que é /tmp/log.log
 

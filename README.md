@@ -12,6 +12,28 @@ Web Service para acesso aos dados do Replicado USP
 * Instalar as dependências do composer
     * ```composer update```
 
+Para unidades com mais de um colegiado, configure o código principal e a lista
+conforme a [documentação do Replicado](https://github.com/uspdev/replicado#explica%C3%A7%C3%B5es-das-vari%C3%A1veis):
+
+```php
+putenv('REPLICADO_CODUNDCLG=18');
+putenv('REPLICADO_CODUNDCLGS=18,97');
+```
+
+As rotas por unidade de pessoas e pós-graduação consultam todos os códigos de
+`REPLICADO_CODUNDCLGS`. Se essa variável estiver ausente ou vazia, usam
+`REPLICADO_CODUNDCLG`, aceitando também listas de configurações antigas.
+Espaços e códigos repetidos são normalizados; os códigos devem ser inteiros
+positivos, sem itens vazios.
+
+A [adaptação de colegiados](src/Colegiados.php) consulta cada código separadamente
+para atender também aos métodos da biblioteca que exigem uma única unidade.
+Os resultados mantêm a ordem dos colegiados e de cada consulta, removendo apenas
+registros idênticos e preservando vínculos distintos da mesma pessoa. As áreas
+continuam agrupadas por curso, e a verificação de matrícula retorna verdadeiro
+se encontrar vínculo em qualquer colegiado. O cache das consultas por unidade
+usa chaves distintas para cada código.
+
 A API faz uso do uspdev/cache. Essa biblioteca de cache funciona com o memcached e ele precisa ser instalado e configurado. Para mais informações consulte http://github.com/uspdev/cache.
 
 Para executar com o cache desabilitado, defina em `config/config.php`:
@@ -73,6 +95,13 @@ Replicado 1.27.12, que exige `uspdev/cache` 1.0.0. As versões instaladas ficam
 fixadas em `composer.lock`; mantenha `REPLICADO_USAR_CACHE=false` para continuar
 executando sem Memcached. A verificação do Flight também cobre domínios sem
 subdiretório.
+
+Para verificar as rotas com múltiplos colegiados, incluindo cache habilitado e
+desabilitado, sem consultar o banco real nem precisar de Memcached:
+
+```bash
+php test/colegiados.php
+```
 
 ## Utilização
 

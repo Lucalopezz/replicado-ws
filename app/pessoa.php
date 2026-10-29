@@ -1,6 +1,7 @@
 <?php
 
 use Uspdev\Replicado_ws\Auth;
+use Uspdev\Replicado_ws\Colegiados;
 
 Flight::route('/pessoa', function () {
     global $help;
@@ -50,7 +51,7 @@ $help['docentes'] = [
 ];
 Flight::route('/pessoa/docentes', function () {
     Auth::auth();
-    $res = \Uspdev\Replicado\Pessoa::listarDocentes();
+    $res = Colegiados::consultar(fn ($codigo) => \Uspdev\Replicado\Pessoa::listarDocentes());
     Flight::json($res);
 });
 
@@ -64,7 +65,7 @@ $help['servidores'] = [
 Flight::route('/pessoa/servidores', function () {
     global $c;
     Auth::auth();
-    $res = $c->getCached('\Uspdev\Replicado\Pessoa::listarServidores', []);
+    $res = Colegiados::consultar(fn ($codigo) => $c->getCached('\Uspdev\Replicado\Pessoa::listarServidores', [], $codigo));
     Flight::jsonf($res);
 });
 
@@ -78,7 +79,7 @@ $help['estagiarios'] = [
 Flight::route('/pessoa/estagiarios', function () {
     global $c;
     Auth::auth();
-    $res = $c->getCached('\Uspdev\Replicado\Pessoa::estagiarios', getenv('REPLICADO_CODUNDCLG'));
+    $res = Colegiados::consultar(fn ($codigo) => $c->getCached('\Uspdev\Replicado\Pessoa::estagiarios', $codigo));
     Flight::jsonf($res);
 });
     
@@ -131,6 +132,6 @@ $help['docentes_seniores'] = [
 ];
 Flight::route('/pessoa/docentes/seniores', function (){
     Auth::auth();
-    $res = \Uspdev\Replicado\Pessoa::listarDocentesAposentadosSenior();
+    $res = Colegiados::consultar(fn ($codigo) => \Uspdev\Replicado\Pessoa::listarDocentesAposentadosSenior());
     Flight::json($res);
 });

@@ -81,7 +81,7 @@ $cases = [
     ['path' => '/posgraduacao/verifica/123', 'status' => 200, 'message' => 'Requires Authentication'],
     ['path' => '/pessoa/dump/123', 'password' => 'incorreta', 'status' => 200, 'message' => 'Requires Authentication'],
     ['path' => '/pessoa/dump/123', 'password' => 'senha-de-teste', 'status' => 200, 'params' => '123'],
-    ['path' => '/pessoa/nome?q=Jo%C3%A3o', 'password' => 'senha-de-teste', 'status' => 200, 'params' => 'João'],
+    ['path' => '/pessoa/nome?q=Jo%C3%A3o', 'password' => 'senha-de-teste', 'status' => 200, 'method' => '\\Uspdev\\Replicado\\Pessoa::procurarPorNome', 'params' => ['João', false, false]],
     ['path' => '/pessoa', 'ip' => '192.0.2.1', 'status' => 403, 'message' => 'Forbidden'],
     ['path' => '/login', 'status' => 401, 'text' => 'Você deve digitar um login e senha válidos para acessar este recurso\\n'],
     ['path' => '/login', 'password' => 'incorreta', 'status' => 401, 'text' => 'Credenciais inválidas'],
@@ -134,6 +134,9 @@ foreach ($cases as $case) {
         }
         if (isset($case['params'])) {
             $ok = $ok && ($data['params'] ?? null) === $case['params'];
+        }
+        if (isset($case['method'])) {
+            $ok = $ok && ($data['method'] ?? null) === $case['method'];
         }
     }
     echo ($ok ? '[OK] ' : '[FALHA] ') . $case['path'] . PHP_EOL;

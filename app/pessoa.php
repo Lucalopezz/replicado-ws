@@ -37,7 +37,7 @@ Flight::route('/pessoa/nome', function () {
         return true;
     }
     Auth::auth();
-    $res = $c->getCached('\Uspdev\Replicado\Pessoa::nome', $request->query['q']);
+    $res = $c->getCached('\Uspdev\Replicado\Pessoa::procurarPorNome', [$request->query['q'], false, false]);
     Flight::jsonf($res);
 });
 

@@ -1,24 +1,25 @@
 {
-	"name" : "uspdev/replicado-ws",
-	"authors" : [{
-			"name" : "André Canale Garcia",
-			"email" : "acgarcia@sc.usp.br"
+	"name": "uspdev/replicado-ws",
+	"authors": [
+		{
+			"name": "André Canale Garcia",
+			"email": "acgarcia@sc.usp.br"
 		},
 		{
-			"name" : "Masaki Kawabata Neto",
-			"email" : "kawabata@usp.br"
+			"name": "Masaki Kawabata Neto",
+			"email": "kawabata@usp.br"
 		}
 	],
-	"require" : {
-		"ext-pdo" : "*",
-		"uspdev/replicado": "^1.27.12",
-		"flightphp/core": "^3.19.5",
+	"require": {
+		"ext-pdo": "*",
+		"uspdev/replicado": "^1.0",
+		"flightphp/core": "^3.19",
 		"uspdev/cache": "^1.0"
 	},
-	"extra" : {},
-	"autoload" : {
-		"psr-4" : {
-			"Uspdev\\Replicado_ws\\" : "src"
+	"extra": {},
+	"autoload": {
+		"psr-4": {
+			"Uspdev\\Replicado_ws\\": "src"
 		}
 	},
 	"minimum-stability": "dev",

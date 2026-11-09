@@ -75,12 +75,12 @@ $check = static function (bool $ok, string $message) use (&$failed): void {
     echo ($ok ? '[OK] ' : '[FALHA] ') . $message . PHP_EOL;
     $failed = $failed || !$ok;
 };
-$cache = new Uspdev\Replicado_ws\Cache();
+$cache = new Uspdev\Cache\Cache();
 $check((bool) $cache->disable, 'Cache desabilitado sem depender de Memcached.');
 $check($cache->getCached(CacheCompatibilityFixture::class . '::next', []) === 1
     && $cache->getCached(CacheCompatibilityFixture::class . '::next', []) === 2,
     'Métodos estáticos executados novamente a cada chamada.');
-$instanceCache = new Uspdev\Replicado_ws\Cache(new CacheCompatibilityFixture());
+$instanceCache = new Uspdev\Cache\Cache(new CacheCompatibilityFixture());
 foreach (['João', null, [], false, 0] as $value) {
     $check($instanceCache->getCached('value', [$value]) === $value,
         'Método de instância preserva o valor do tipo ' . get_debug_type($value) . '.');

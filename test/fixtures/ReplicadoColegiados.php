@@ -101,7 +101,7 @@ class ColegiadosFixtureMemoryCache
     }
 }
 
-function replicadoColegiadosFixture(array $case): Uspdev\Replicado_ws\Cache
+function replicadoColegiadosFixture(array $case): Uspdev\Cache\Cache
 {
     foreach (['REPLICADO_CODUNDCLG', 'REPLICADO_CODUNDCLGS'] as $variavel) {
         $valor = $case['colegiados'][$variavel] ?? null;
@@ -120,7 +120,7 @@ function replicadoColegiadosFixture(array $case): Uspdev\Replicado_ws\Cache
     $instance = new ReflectionProperty(Uspdev\Replicado\DB::class, 'instance');
     $instance->setValue(null, new ColegiadosFixturePDO());
     putenv('USPDEV_CACHE_DISABLE=1');
-    $cache = new Uspdev\Replicado_ws\Cache();
+    $cache = new Uspdev\Cache\Cache();
     if ($case['cache'] ?? false) {
         $cache->disable = false;
         $cache->small = -1;

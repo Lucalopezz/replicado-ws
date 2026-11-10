@@ -2,6 +2,8 @@
 require_once '../config/config.php';
 require_once '../vendor/autoload.php';
 
+\Uspdev\Replicado\Replicado::setConfig();
+
 // aqui tem várias personalizações do Flight e outras configurações
 require_once '../app/bootstrap.php';
 

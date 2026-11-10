@@ -64,6 +64,23 @@ php test/require_auth.php
 
 Acessar URL do serviço desejado com os parâmetros necessários. O retorno dos dados será em JSON.
 
+### Swagger UI e OpenAPI
+
+Acesse `DOMINIO/docs` para visualizar todas as rotas e executar consultas pelo
+Swagger UI. A especificação OpenAPI 3.0.3 fica em `DOMINIO/openapi.json`, com a
+URL base desta instalação preenchida automaticamente, inclusive quando a API
+é publicada em um subdiretório. Os dois endereços também aparecem no índice `/`.
+
+1. Abra a rota desejada e clique em **Try it out**.
+2. Preencha os parâmetros obrigatórios. Número USP (`codpes`), nome, e-mail e
+   credenciais ficam vazios; `codcur` vem com o exemplo `18070` (Engenharia).
+   Esse exemplo não altera o filtro padrão da API.
+3. Para rotas com cadeado, use **Authorize** e informe o usuário e a senha da API
+   configurados no servidor. A autenticação é HTTP Basic, sem emissão de token.
+4. Clique em **Execute** para enviar uma consulta real à API. Os exemplos de
+   resposta são ilustrativos e não foram coletados do banco.
+
+
 ### Exemplo 1
 
 Acessando o endereço `http://{dominio}/` pelo navegador, vai retornar

@@ -45,7 +45,7 @@ try {
     $data = null;
 }
 $expectedKeys = ['graduacao_url', 'posgraduacao_url', 'pessoa_url', 'lattes_url',
-    'bempatrimoniado_url', 'login_url', 'logout_url'];
+    'bempatrimoniado_url', 'login_url', 'logout_url', 'docs_url', 'openapi_url'];
 if ($exitCode !== 0 || $stderr !== '' || !is_array($data) || array_keys($data) !== $expectedKeys) {
     fwrite(STDERR, "[FALHA] A entrada real deve retornar somente o JSON, sem avisos PHP.\n" . $stderr);
     exit(1);

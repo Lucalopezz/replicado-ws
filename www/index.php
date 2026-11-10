@@ -23,6 +23,8 @@ Flight::route('/', function () {
     $api['bempatrimoniado_url'] = DOMINIO . '/bempatrimoniado';
     $api['login_url'] = DOMINIO . '/login';
     $api['logout_url'] = DOMINIO . '/logout';
+    $api['docs_url'] = DOMINIO . '/docs';
+    $api['openapi_url'] = DOMINIO . '/openapi.json';
     Flight::jsonf($api);
 });
 
@@ -30,6 +32,8 @@ Flight::route('*', function() {
     Auth::ip_control();
     return true;
 });
+
+require_once '../app/docs.php';
 
 Flight::route('/login', function () {
     Auth::login();
@@ -46,7 +50,7 @@ $app = explode('/', $url)[1];
 
 if (file_exists('../app/' . $app . '.php')) {
     require_once '../app/' . $app . '.php';
-} 
+}
 
 // incluindo rotas locais
 if (defined('ROTAS_LOCAIS') and file_exists(ROTAS_LOCAIS)) {

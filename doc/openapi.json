@@ -1,0 +1,1537 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Replicado-WS",
+        "description": "API de consulta aos dados do Replicado USP. Número USP (codpes), nomes, e-mails e credenciais ficam vazios para preenchimento manual; preencha os campos obrigatórios antes de executar. O exemplo de codcur é 18070 (Engenharia), informado para esta instalação; não é um filtro automático da API. codare e numpat ficam vazios até que sejam informados valores de teste. Os exemplos de resposta são ilustrativos, não foram extraídos da base e mostram apenas parte dos campos. Os campos variam conforme a consulta e a versão do Replicado. As rotas por unidade usam os colegiados configurados no servidor; não há parâmetro de unidade na URL. Quando IP_ACCESS_LIST está configurado, o acesso pode retornar 403. Rotas locais definidas por ROTAS_LOCAIS não estão incluídas. As consultas estão documentadas como GET; rotas legadas sem método explícito também podem aceitar outros métodos.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Ajuste para a URL base da instalação ao importar este arquivo; /openapi.json fornece DOMINIO automaticamente."
+        }
+    ],
+    "paths": {
+        "/login": {
+            "get": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Validar credenciais HTTP Basic",
+                "description": "Use Authorize antes de executar. Retorna Login success com credenciais válidas. Não cria sessão nem token; envie Basic em todas as rotas protegidas.",
+                "operationId": "login",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "Login success"
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "401": {
+                        "description": "Credenciais ausentes ou inválidas. Pode incluir WWW-Authenticate: Basic.",
+                        "headers": {
+                            "WWW-Authenticate": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Basic realm=\"use this hash key to encode\""
+                                }
+                            }
+                        },
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {
+                                    "ausentes": {
+                                        "summary": "Credenciais ausentes",
+                                        "value": "Você deve digitar um login e senha válidos para acessar este recurso\\n"
+                                    },
+                                    "invalidas": {
+                                        "summary": "Credenciais inválidas",
+                                        "value": "Credenciais inválidas"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/logout": {
+            "get": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Solicitar nova autenticação ao navegador",
+                "description": "Sempre retorna 401, texto logout e WWW-Authenticate: Basic. Não revoga credenciais. Para limpar o Swagger UI, use Authorize e Logout.",
+                "operationId": "logout",
+                "responses": {
+                    "401": {
+                        "description": "Solicita autenticação HTTP Basic ao navegador.",
+                        "headers": {
+                            "WWW-Authenticate": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Basic realm=\"use this hash key to encode\""
+                                }
+                            }
+                        },
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "logout"
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/": {
+            "get": {
+                "tags": [
+                    "Documentação"
+                ],
+                "summary": "Índice da API",
+                "description": "Links dos módulos e da documentação.",
+                "operationId": "indice",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    }
+                                },
+                                "example": {
+                                    "pessoa_url": "/pessoa",
+                                    "posgraduacao_url": "/posgraduacao",
+                                    "graduacao_url": "/graduacao",
+                                    "lattes_url": "/lattes",
+                                    "bempatrimoniado_url": "/bempatrimoniado",
+                                    "login_url": "/login",
+                                    "logout_url": "/logout",
+                                    "docs_url": "/docs",
+                                    "openapi_url": "/openapi.json"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/docs": {
+            "get": {
+                "tags": [
+                    "Documentação"
+                ],
+                "summary": "Swagger UI",
+                "description": "Documentação interativa usando a página e os arquivos do pacote oficial swagger-api/swagger-ui, servidos pela própria API.",
+                "operationId": "swaggerUi",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/openapi.json": {
+            "get": {
+                "tags": [
+                    "Documentação"
+                ],
+                "summary": "Especificação OpenAPI",
+                "description": "OpenAPI 3.0.3 com a URL desta instalação em servers.",
+                "operationId": "openapi",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/graduacao": {
+            "get": {
+                "tags": [
+                    "Graduação"
+                ],
+                "summary": "Ajuda do módulo graduacao",
+                "description": "Sem consultas registradas. Atualmente retorna null porque não há entradas de ajuda.",
+                "operationId": "ajudaGraduacao",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "nullable": true
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/lattes": {
+            "get": {
+                "tags": [
+                    "Lattes"
+                ],
+                "summary": "Ajuda do módulo lattes",
+                "description": "Lista URLs e descrições das consultas.",
+                "operationId": "ajudaLattes",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ajuda"
+                                },
+                                "example": {
+                                    "idLattes": {
+                                        "url": "/lattes/idLattes/{codpes}",
+                                        "descricao": "Consulta o identificador Lattes pelo número USP."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/lattes/idLattes/{codpes}": {
+            "get": {
+                "tags": [
+                    "Lattes"
+                ],
+                "summary": "Consultar identificador Lattes",
+                "description": "Identificador Lattes como string JSON ou false quando não encontrado. Sem exigência de HTTP Basic na implementação atual.",
+                "operationId": "lattesId",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codpes"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TextoOuAusente"
+                                },
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/bempatrimoniado": {
+            "get": {
+                "tags": [
+                    "Patrimônio"
+                ],
+                "summary": "Ajuda do módulo bempatrimoniado",
+                "description": "Lista URLs e descrições das consultas.",
+                "operationId": "ajudaBempatrimoniado",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ajuda"
+                                },
+                                "example": {
+                                    "dump": {
+                                        "url": "/bempatrimoniado/dump/{numpat}",
+                                        "descricao": "Consulta os dados de um bem."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/bempatrimoniado/dump/{numpat}": {
+            "get": {
+                "tags": [
+                    "Patrimônio"
+                ],
+                "summary": "Consultar todos os campos de um bem",
+                "description": "Campos de BEMPATRIMONIADO. Sem exigência de HTTP Basic na implementação atual.",
+                "operationId": "patrimonioDump",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Numpat"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RegistroOuAusente"
+                                },
+                                "example": {
+                                    "numpat": "",
+                                    "stabem": "Ativo"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/pessoa": {
+            "get": {
+                "tags": [
+                    "Pessoa"
+                ],
+                "summary": "Ajuda do módulo pessoa",
+                "description": "Lista URLs e descrições das consultas.",
+                "operationId": "ajudaPessoa",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ajuda"
+                                },
+                                "example": {
+                                    "dump": {
+                                        "url": "/pessoa/dump/{codpes}",
+                                        "descricao": "Consulta os dados de uma pessoa pelo número USP."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/pessoa/dump/{codpes}": {
+            "get": {
+                "tags": [
+                    "Pessoa"
+                ],
+                "summary": "Consultar todos os campos de uma pessoa",
+                "description": "Consulta a tabela PESSOA pelo número USP. Campos timestamp são removidos da resposta. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "pessoaDump",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codpes"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/RegistroOuAusente"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "sucesso": {
+                                        "summary": "Exemplo ilustrativo; dados pessoais vazios",
+                                        "value": {
+                                            "codpes": "",
+                                            "nompes": "",
+                                            "sexpes": ""
+                                        }
+                                    },
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/pessoa/nome": {
+            "get": {
+                "tags": [
+                    "Pessoa"
+                ],
+                "summary": "Pesquisar pessoas pelo nome",
+                "description": "Busca sem restringir apenas a pessoas ativas. q obrigatório; vazio ou ausente retorna 404. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "pessoaNome",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Nome"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListaRegistros"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "sucesso": {
+                                        "summary": "Exemplo ilustrativo; dados pessoais vazios",
+                                        "value": [
+                                            {
+                                                "codpes": "",
+                                                "nompes": "",
+                                                "sexpes": ""
+                                            }
+                                        ]
+                                    },
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/pessoa/docentes": {
+            "get": {
+                "tags": [
+                    "Pessoa"
+                ],
+                "summary": "Listar docentes ativos",
+                "description": "Consulta os colegiados configurados no servidor. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "pessoaDocentes",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListaRegistros"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "sucesso": {
+                                        "summary": "Exemplo ilustrativo; dados pessoais vazios",
+                                        "value": [
+                                            {
+                                                "codpes": "",
+                                                "nompes": "",
+                                                "sexpes": ""
+                                            }
+                                        ]
+                                    },
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/pessoa/servidores": {
+            "get": {
+                "tags": [
+                    "Pessoa"
+                ],
+                "summary": "Listar servidores ativos",
+                "description": "Consulta os colegiados configurados no servidor. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "pessoaServidores",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListaRegistros"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "sucesso": {
+                                        "summary": "Exemplo ilustrativo; dados pessoais vazios",
+                                        "value": [
+                                            {
+                                                "codpes": "",
+                                                "nompes": "",
+                                                "sexpes": ""
+                                            }
+                                        ]
+                                    },
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/pessoa/estagiarios": {
+            "get": {
+                "tags": [
+                    "Pessoa"
+                ],
+                "summary": "Listar estagiários ativos",
+                "description": "Consulta os colegiados configurados no servidor. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "pessoaEstagiarios",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListaRegistros"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "sucesso": {
+                                        "summary": "Exemplo ilustrativo; dados pessoais vazios",
+                                        "value": [
+                                            {
+                                                "codpes": "",
+                                                "nompes": "",
+                                                "sexpes": ""
+                                            }
+                                        ]
+                                    },
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/pessoa/docentes/seniores": {
+            "get": {
+                "tags": [
+                    "Pessoa"
+                ],
+                "summary": "Listar docentes aposentados seniores",
+                "description": "Consulta os colegiados configurados no servidor. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "pessoaDocentes_seniores",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListaRegistros"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "sucesso": {
+                                        "summary": "Exemplo ilustrativo; dados pessoais vazios",
+                                        "value": [
+                                            {
+                                                "codpes": "",
+                                                "nompes": "",
+                                                "sexpes": ""
+                                            }
+                                        ]
+                                    },
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/pessoa/email/{codpes}": {
+            "get": {
+                "tags": [
+                    "Pessoa"
+                ],
+                "summary": "Consultar e-mail principal",
+                "description": "Retorna e-mail principal como string JSON ou false quando não encontrado. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "pessoaEmail",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codpes"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/TextoOuAusente"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "sucesso": {
+                                        "summary": "Exemplo ilustrativo; dados pessoais vazios",
+                                        "value": ""
+                                    },
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/pessoa/procura_ativo/": {
+            "get": {
+                "tags": [
+                    "Pessoa"
+                ],
+                "summary": "Pesquisar pessoas ativas pelo número USP ou nome",
+                "description": "Retorna linhas posicionais: [número USP, nome, sexo, e-mail]. Sem q, pode retornar corpo vazio. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "pessoaProcuraAtivo",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/CodigoOuNome"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PessoasAtivas"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "sucesso": {
+                                        "summary": "Exemplo ilustrativo; dados pessoais vazios",
+                                        "value": [
+                                            [
+                                                "",
+                                                "",
+                                                "",
+                                                ""
+                                            ]
+                                        ]
+                                    },
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/posgraduacao": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Ajuda do módulo posgraduacao",
+                "description": "Lista URLs e descrições das consultas.",
+                "operationId": "ajudaPosgraduacao",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ajuda"
+                                },
+                                "example": {
+                                    "programas": {
+                                        "url": "/posgraduacao/programas/{codcur}",
+                                        "descricao": "Consulta programas de pós-graduação."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/posgraduacao/verifica/{codpes}": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Verificar matrícula ativa",
+                "description": "true se houver matrícula de pós-graduação ativa em qualquer colegiado configurado; caso contrário, false. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "posgraduacaoVerifica",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codpes"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/posgraduacao/ativos": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Listar alunos ativos de pós-graduação",
+                "description": "Retorna alunos ativos dos colegiados configurados. Requer HTTP Basic. Credenciais ausentes ou inválidas retornam HTTP 200 com message = Requires Authentication, em vez de 401.",
+                "operationId": "posgraduacaoAtivos",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ListaRegistros"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/Mensagem"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "sucesso": {
+                                        "summary": "Exemplo ilustrativo; dados pessoais vazios",
+                                        "value": [
+                                            {
+                                                "codpes": "",
+                                                "nompes": "",
+                                                "sexpes": ""
+                                            }
+                                        ]
+                                    },
+                                    "semCredenciais": {
+                                        "summary": "Credenciais ausentes ou inválidas (HTTP 200)",
+                                        "value": {
+                                            "message": "Requires Authentication",
+                                            "documentation_url": "/"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/posgraduacao/programas": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Listar programas de pós-graduação",
+                "description": "Lista todos os programas. Para filtrar, use /posgraduacao/programas/{codcur}.",
+                "operationId": "posgraduacaoProgramas",
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListaRegistros"
+                                },
+                                "example": [
+                                    {
+                                        "codcur": 18070,
+                                        "nomcur": "Engenharia",
+                                        "codare": ""
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    }
+                }
+            }
+        },
+        "/posgraduacao/programas/{codcur}": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Consultar programa pelo código do curso",
+                "description": "Retorna lista de dados do programa, incluindo suas áreas. Exemplo: 18070 (Engenharia).",
+                "operationId": "posgraduacaoPrograma",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codcur"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListaRegistros"
+                                },
+                                "example": [
+                                    {
+                                        "codcur": 18070,
+                                        "nomcur": "Engenharia",
+                                        "codare": ""
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/posgraduacao/orientadores/{codare}": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Listar orientadores credenciados na área",
+                "description": "Retorna orientadores com credenciamento vigente na área de concentração.",
+                "operationId": "posgraduacaoOrientadores",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codare"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListaRegistros"
+                                },
+                                "example": [
+                                    {
+                                        "codpes": "",
+                                        "nompes": "",
+                                        "sexpes": ""
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/posgraduacao/catalogodisciplinas/{codare}": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Consultar catálogo de disciplinas",
+                "description": "Disciplinas da área de concentração. l=completo inclui dados adicionais da disciplina.",
+                "operationId": "posgraduacaoCatalogodisciplinas",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codare"
+                    },
+                    {
+                        "$ref": "#/components/parameters/Completo"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListaRegistros"
+                                },
+                                "example": []
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/posgraduacao/disciplinas_oferecimento/{codare}": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Consultar disciplinas em oferecimento",
+                "description": "Oferecimentos da área de concentração. l=completo inclui detalhes como local e ministrantes.",
+                "operationId": "posgraduacaoDisciplinas_oferecimento",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codare"
+                    },
+                    {
+                        "$ref": "#/components/parameters/Completo"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListaRegistros"
+                                },
+                                "example": []
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/posgraduacao/areasProgramas/{codcur}": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Listar áreas de concentração do programa",
+                "description": "Áreas agrupadas pelo código do curso. Use um codare retornado aqui nas consultas por área.",
+                "operationId": "posgraduacaoAreasProgramas",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codcur"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AreasPorPrograma"
+                                },
+                                "example": {
+                                    "18070": [
+                                        {
+                                            "codare": "",
+                                            "nomare": ""
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/posgraduacao/alunosPrograma/{codcur}": {
+            "get": {
+                "tags": [
+                    "Pós-graduação"
+                ],
+                "summary": "Listar alunos ativos do programa",
+                "description": "Consulta todas as áreas do curso nos colegiados configurados e retorna os alunos ativos.",
+                "operationId": "posgraduacaoAlunosPrograma",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Codcur"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta da consulta.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListaRegistros"
+                                },
+                                "example": [
+                                    {
+                                        "codpes": "",
+                                        "nompes": "",
+                                        "sexpes": ""
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Registro": {
+                "description": "Registro do Replicado. Os campos variam por consulta; os exemplos mostram apenas parte do retorno.",
+                "type": "object",
+                "additionalProperties": true
+            },
+            "ListaRegistros": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Registro"
+                }
+            },
+            "RegistroOuAusente": {
+                "description": "Registro encontrado; false ou null quando não há resultado.",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "nullable": true,
+                        "additionalProperties": true
+                    },
+                    {
+                        "type": "boolean",
+                        "enum": [
+                            false
+                        ]
+                    }
+                ]
+            },
+            "TextoOuAusente": {
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    {
+                        "type": "boolean",
+                        "enum": [
+                            false
+                        ]
+                    }
+                ]
+            },
+            "Mensagem": {
+                "required": [
+                    "message",
+                    "documentation_url"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "documentation_url": {
+                        "description": "URL raiz da instalação.",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Ajuda": {
+                "type": "object",
+                "additionalProperties": {
+                    "properties": {
+                        "url": {
+                            "type": "string"
+                        },
+                        "descricao": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                }
+            },
+            "AreasPorPrograma": {
+                "description": "Objeto indexado pelo código do programa, ou [] quando não houver áreas.",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/Registro"
+                            }
+                        }
+                    },
+                    {
+                        "type": "array",
+                        "items": {},
+                        "maxItems": 0
+                    }
+                ]
+            },
+            "PessoasAtivas": {
+                "type": "array",
+                "items": {
+                    "description": "Cada linha contém, nesta ordem: número USP, nome, sexo e e-mail. E-mail pode ser false.",
+                    "type": "array",
+                    "items": {
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "boolean",
+                                "enum": [
+                                    false
+                                ]
+                            }
+                        ]
+                    },
+                    "maxItems": 4,
+                    "minItems": 4
+                }
+            }
+        },
+        "responses": {
+            "Forbidden": {
+                "description": "Acesso negado pelo controle de IP.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Mensagem"
+                        },
+                        "example": {
+                            "message": "Forbidden",
+                            "documentation_url": "/"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "Rota não encontrada, parâmetro numérico inválido ou busca por nome sem q.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Mensagem"
+                        },
+                        "example": {
+                            "message": "Not Found",
+                            "documentation_url": "/"
+                        }
+                    }
+                }
+            }
+        },
+        "parameters": {
+            "Codpes": {
+                "name": "codpes",
+                "in": "path",
+                "description": "Número USP. Preencha somente dígitos; vazio por ser dado pessoal.",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                },
+                "example": ""
+            },
+            "Codcur": {
+                "name": "codcur",
+                "in": "path",
+                "description": "Código do curso/programa. Exemplo fornecido: 18070 (Engenharia).",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "example": 18070
+            },
+            "Codare": {
+                "name": "codare",
+                "in": "path",
+                "description": "Código da área de concentração. Preencha com um codare retornado por /posgraduacao/areasProgramas/18070 ou informe um valor de teste. É diferente de codcur.",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                },
+                "example": ""
+            },
+            "Numpat": {
+                "name": "numpat",
+                "in": "path",
+                "description": "Número de patrimônio, somente dígitos, sem pontos. Preencha manualmente com um valor de teste.",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                },
+                "example": ""
+            },
+            "Nome": {
+                "name": "q",
+                "in": "query",
+                "description": "Nome ou trecho de nome. Preencha manualmente. Ausente ou vazio retorna 404.",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "example": ""
+            },
+            "CodigoOuNome": {
+                "name": "q",
+                "in": "query",
+                "description": "Número USP ou trecho de nome. Preencha manualmente. Sem valor a implementação encerra a rota sem emitir JSON e pode responder com corpo vazio.",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "example": ""
+            },
+            "Completo": {
+                "name": "l",
+                "in": "query",
+                "description": "Use completo para incluir detalhes. Omita para dados básicos. Outros valores também seguem a consulta básica.",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "example": "completo"
+            }
+        },
+        "securitySchemes": {
+            "basicAuth": {
+                "type": "http",
+                "description": "Credenciais da API configuradas em $users. Preencha manualmente no botão Authorize.",
+                "scheme": "basic"
+            }
+        }
+    },
+    "security": [],
+    "tags": [
+        {
+            "name": "Documentação",
+            "description": "Índice e documentação interativa."
+        },
+        {
+            "name": "Autenticação",
+            "description": "HTTP Basic: use credenciais da API, não a senha pessoal USP. Envie Basic a cada consulta protegida."
+        },
+        {
+            "name": "Pessoa",
+            "description": "Pessoas, docentes, servidores e estagiários."
+        },
+        {
+            "name": "Pós-graduação",
+            "description": "Programas, áreas, alunos, orientadores e disciplinas."
+        },
+        {
+            "name": "Graduação",
+            "description": "Somente ajuda; sem consultas implementadas."
+        },
+        {
+            "name": "Lattes",
+            "description": "Identificador Lattes."
+        },
+        {
+            "name": "Patrimônio",
+            "description": "Bens patrimoniados."
+        }
+    ]
+}

@@ -4,15 +4,38 @@ namespace Uspdev\Replicado_ws;
 
 class Auth
 {
+    // CGI/FastCGI pode repassar o cabeçalho sem preencher PHP_AUTH_USER/PW.
+    private static function restoreBasicAuth(): void
+    {
+        if (isset($_SERVER['PHP_AUTH_USER'])) {
+            return;
+        }
+
+        $authorization = $_SERVER['HTTP_AUTHORIZATION']
+            ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+        if (!preg_match('/^Basic\s+(\S+)$/i', $authorization, $matches)) {
+            return;
+        }
+
+        $credentials = base64_decode($matches[1], true);
+        if ($credentials === false || strpos($credentials, ':') === false) {
+            return;
+        }
+
+        [$_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']] = explode(':', $credentials, 2);
+    }
+
     public static function auth()
     {
         global $users;
+
+        self::restoreBasicAuth();
 
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
         header('Access-Control-Allow-Headers: authorization');
 
-        if (!isset($_SERVER['PHP_AUTH_USER'])) {
+        if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])) {
             \Flight::requireAuth();
             exit;
         }
@@ -27,6 +50,8 @@ class Auth
     {
         global $users;
 
+        self::restoreBasicAuth();
+
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
         header('Access-Control-Allow-Headers: authorization');
@@ -36,7 +61,7 @@ class Auth
             exit;
         }
 
-        if (!isset($_SERVER['PHP_AUTH_USER'])) {
+        if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])) {
             header('HTTP/1.0 401 Unauthorized');
             header('WWW-Authenticate: Basic realm="use this hash key to encode"');
             echo 'Você deve digitar um login e senha válidos para acessar este recurso\n';

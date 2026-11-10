@@ -55,11 +55,11 @@ if (($argv[1] ?? '') === '--request') {
         require __DIR__ . '/fixtures/ReplicadoColegiados.php';
         $c = replicadoColegiadosFixture($case);
     }
-
     Flight::route('*', static function () {
         Uspdev\Replicado_ws\Auth::ip_control();
         return true;
     });
+    require dirname(__DIR__) . '/app/docs.php';
     Flight::route('/login', [Uspdev\Replicado_ws\Auth::class, 'login']);
     Flight::route('/logout', [Uspdev\Replicado_ws\Auth::class, 'logout']);
     $app = explode('/', parse_url($case['path'], PHP_URL_PATH))[1];
@@ -71,6 +71,20 @@ if (($argv[1] ?? '') === '--request') {
 }
 
 $cases = [
+    ['path' => '/docs', 'base' => '', 'status' => 200, 'html' => true],
+    ['path' => '/docs', 'status' => 200, 'html' => true],
+    ['path' => '/docs/', 'status' => 200, 'html' => true],
+    ['path' => '/docs/swagger-initializer.js', 'base' => '', 'status' => 200, 'initializer' => true],
+    ['path' => '/docs/swagger-initializer.js', 'status' => 200, 'initializer' => true],
+    ['path' => '/docs/swagger-ui.css', 'base' => '', 'status' => 200, 'asset' => 'text/css; charset=utf-8'],
+    ['path' => '/docs/swagger-ui.css', 'status' => 200, 'asset' => 'text/css; charset=utf-8'],
+    ['path' => '/docs/swagger-ui-bundle.js', 'status' => 200, 'asset' => 'application/javascript; charset=utf-8'],
+    ['path' => '/docs/arquivo-inexistente.js', 'status' => 404, 'message' => 'Not Found'],
+    ['path' => '/docs/swagger-ui.css', 'ip' => '192.0.2.1', 'status' => 403, 'message' => 'Forbidden'],
+    ['path' => '/openapi.json', 'base' => '', 'status' => 200, 'openapi' => true],
+    ['path' => '/openapi.json', 'status' => 200, 'openapi' => true],
+    ['path' => '/docs', 'ip' => '192.0.2.1', 'status' => 403, 'message' => 'Forbidden'],
+    ['path' => '/openapi.json', 'ip' => '192.0.2.1', 'status' => 403, 'message' => 'Forbidden'],
     ['path' => '/pessoa', 'base' => '', 'status' => 200, 'key' => 'dump'],
     ['path' => '/nulo', 'base' => '', 'status' => 404, 'message' => 'Not Found'],
     ['path' => '/posgraduacao/ativos', 'base' => '', 'status' => 200, 'message' => 'Requires Authentication'],
@@ -121,12 +135,36 @@ foreach ($cases as $case) {
     $exitCode = proc_close($process);
     $response = json_decode(trim($stderr), true);
     $ok = $exitCode === 0 && ($response['status'] ?? null) === $case['status'];
-    if (isset($case['text'])) {
+    if (isset($case['html'])) {
+        $ok = $ok && ($response['headers']['Content-Type'] ?? '') === 'text/html; charset=utf-8'
+            && strpos($body, '<div id="swagger-ui">') !== false
+            && strpos($body, '<base href="' . $domain . '/docs/">') !== false
+            && strpos($body, 'swagger-initializer.js') !== false
+            && strpos($body, 'cdn.jsdelivr.net') === false;
+    } elseif (isset($case['initializer'])) {
+        preg_match('/SwaggerUIBundle\((\{.*\})\)/', $body, $matches);
+        $config = json_decode($matches[1] ?? '', true);
+        $ok = $ok && ($response['headers']['Content-Type'] ?? '') === 'application/javascript; charset=utf-8'
+            && ($config['url'] ?? null) === $domain . '/openapi.json'
+            && ($config['persistAuthorization'] ?? null) === false
+            && array_key_exists('validatorUrl', $config ?? []) && $config['validatorUrl'] === null
+            && strpos($body, 'petstore') === false;
+    } elseif (isset($case['asset'])) {
+        $ok = $ok && ($response['headers']['Content-Type'] ?? '') === $case['asset']
+            && hash('sha256', $body) === hash_file('sha256', dirname(__DIR__) . '/vendor/swagger-api/swagger-ui/dist/' . basename($case['path']));
+    } elseif (isset($case['text'])) {
         $ok = $ok && $body === $case['text'];
     } else {
         $data = json_decode($body, true);
         $ok = $ok && json_last_error() === JSON_ERROR_NONE
             && ($response['headers']['Content-Type'] ?? '') === 'application/json; charset=utf-8';
+        if (isset($case['openapi'])) {
+            $ok = $ok && ($data['openapi'] ?? null) === '3.0.3'
+                && ($data['servers'][0]['url'] ?? null) === $domain
+                && isset($data['paths']['/pessoa/dump/{codpes}']['get'])
+                && ($data['components']['parameters']['Codpes']['example'] ?? null) === ''
+                && ($data['components']['parameters']['Codcur']['example'] ?? null) === 18070;
+        }
         if (isset($case['message'])) {
             $ok = $ok && $data === [
                 'message' => $case['message'],

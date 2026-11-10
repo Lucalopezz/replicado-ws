@@ -95,7 +95,7 @@ $help['email'] = [
 Flight::route('/pessoa/email/@codpes:[0-9]+', function ($codpes) {
     global $c;
     Auth::auth();
-    $res = $c->getCached('\Uspdev\Replicado\Pessoa::email', $codpes);
+    $res = $c->getCached('\Uspdev\Replicado_ws\Model\Pessoa::email', $codpes);
     Flight::jsonf($res);
 });
 
@@ -116,7 +116,7 @@ Flight::route('/pessoa/procura_ativo/', function () {
     $res = \Uspdev\Replicado\Pessoa::procurarPorCodigoOuNome($q);
     $rets = [];
     foreach ($res as $pessoa) {
-        $email = \Uspdev\Replicado\Pessoa::email($pessoa['codpes']);
+        $email = \Uspdev\Replicado_ws\Model\Pessoa::email($pessoa['codpes']);
         $ret = [$pessoa['codpes'], $pessoa['nompes'], $pessoa['sexpes'], $email];
         $rets[] = $ret;
     }

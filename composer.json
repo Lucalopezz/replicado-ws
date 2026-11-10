@@ -14,7 +14,9 @@
 		"ext-pdo": "*",
 		"uspdev/replicado": "^1.28",
 		"flightphp/core": "^3.19",
-		"uspdev/cache": "^1.0"
+		"uspdev/cache": "^1.0",
+		"zircote/swagger-php": "^5.0",
+		"swagger-api/swagger-ui": "^5.0"
 	},
 	"extra": {},
 	"autoload": {
